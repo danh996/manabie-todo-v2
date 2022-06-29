@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 	"my-todo/configs"
+	"my-todo/internal/model"
 	"my-todo/internal/model/postgres"
+
 	"net/http"
 	"time"
 
@@ -24,6 +26,11 @@ func (th timeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 var (
 	cfg      *configs.Config
 	dbClient *sql.DB
+
+	// store
+	taskStore      model.TaskStore
+	taskCountStore model.TaskCountStore
+	userStore      model.UserStore
 )
 
 func loadConfig() error {
@@ -47,6 +54,13 @@ func loadDatabase() error {
 	return err
 }
 
+func loadStores() {
+	log.Println("Loading store function is called")
+	taskStore = postgres.NewTaskStore(dbClient)
+	//taskCountStore = rd.NewTaskCountStore(redisClient)
+	userStore = postgres.NewUserStore(dbClient)
+}
+
 func main() {
 
 	if err := loadConfig(); err != nil {
@@ -56,6 +70,8 @@ func main() {
 	if err := loadDatabase(); err != nil {
 		panic(err)
 	}
+
+	loadStores()
 
 	log.Println("config value is ", cfg)
 
