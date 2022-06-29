@@ -81,6 +81,12 @@ func loadHandler() {
 	authHandler = transport.NewAuthHandler(authDomain)
 }
 
+func loadHttpServer() error {
+	srv := transport.NewHttpServer(cfg.JwtKey, authHandler, taskHandler)
+	log.Printf("http server listening port %v\n", cfg.Port)
+	return http.ListenAndServe(fmt.Sprintf(":%v", cfg.Port), srv)
+}
+
 func main() {
 
 	if err := loadConfig(); err != nil {
@@ -95,14 +101,7 @@ func main() {
 	loadDomain()
 	loadHandler()
 
-	log.Println("config value is ", cfg)
-
-	mux := http.NewServeMux()
-
-	th := timeHandler{format: time.RFC1123}
-
-	mux.Handle("/time", th)
-
-	log.Print("Listening...")
-	http.ListenAndServe(":3000", mux)
+	if err := loadHttpServer(); err != nil {
+		panic(err)
+	}
 }
