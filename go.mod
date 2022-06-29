@@ -3,6 +3,7 @@ module my-todo
 go 1.18
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/bmizerany/pq v0.0.0-20131128184720-da2b95e392c1
 	github.com/bxcodec/faker/v3 v3.8.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
