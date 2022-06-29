@@ -8,6 +8,7 @@ import (
 	"my-todo/internal/domain"
 	"my-todo/internal/model"
 	"my-todo/internal/model/postgres"
+	"my-todo/internal/transport"
 
 	"net/http"
 	"time"
@@ -36,6 +37,10 @@ var (
 	// domain
 	taskDomain domain.TaskDomain
 	authDomain domain.AuthDomain
+
+	// handler
+	taskHandler transport.TaskHandler
+	authHandler transport.AuthHandler
 )
 
 func loadConfig() error {
@@ -71,6 +76,11 @@ func loadDomain() {
 	authDomain = domain.NewAuthDomain(userStore, cfg.JwtKey)
 }
 
+func loadHandler() {
+	taskHandler = transport.NewTaskHandler(taskDomain)
+	authHandler = transport.NewAuthHandler(authDomain)
+}
+
 func main() {
 
 	if err := loadConfig(); err != nil {
@@ -83,6 +93,7 @@ func main() {
 
 	loadStores()
 	loadDomain()
+	loadHandler()
 
 	log.Println("config value is ", cfg)
 
