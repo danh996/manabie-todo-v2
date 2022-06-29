@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"my-todo/configs"
+	"my-todo/internal/domain"
 	"my-todo/internal/model"
 	"my-todo/internal/model/postgres"
 
@@ -31,6 +32,10 @@ var (
 	taskStore      model.TaskStore
 	taskCountStore model.TaskCountStore
 	userStore      model.UserStore
+
+	// domain
+	taskDomain domain.TaskDomain
+	authDomain domain.AuthDomain
 )
 
 func loadConfig() error {
@@ -61,6 +66,11 @@ func loadStores() {
 	userStore = postgres.NewUserStore(dbClient)
 }
 
+func loadDomain() {
+	taskDomain = domain.NewTaskDomain(taskCountStore, taskStore, userStore)
+	authDomain = domain.NewAuthDomain(userStore, cfg.JwtKey)
+}
+
 func main() {
 
 	if err := loadConfig(); err != nil {
@@ -72,6 +82,7 @@ func main() {
 	}
 
 	loadStores()
+	loadDomain()
 
 	log.Println("config value is ", cfg)
 
