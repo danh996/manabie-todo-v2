@@ -1,10 +1,15 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"log"
 	"my-todo/configs"
+	"my-todo/internal/model/postgres"
 	"net/http"
 	"time"
+
+	_ "github.com/bmizerany/pq"
 )
 
 type timeHandler struct {
@@ -17,7 +22,8 @@ func (th timeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 var (
-	cfg *configs.Config
+	cfg      *configs.Config
+	dbClient *sql.DB
 )
 
 func loadConfig() error {
@@ -32,9 +38,22 @@ func loadConfig() error {
 	return nil
 }
 
+func loadDatabase() error {
+	var err error
+	dbClient, err = postgres.NewPostgresClient(cfg.DBAddress)
+	if err == nil {
+		fmt.Println("connect database successful", cfg.DBAddress)
+	}
+	return err
+}
+
 func main() {
 
 	if err := loadConfig(); err != nil {
+		panic(err)
+	}
+
+	if err := loadDatabase(); err != nil {
 		panic(err)
 	}
 
